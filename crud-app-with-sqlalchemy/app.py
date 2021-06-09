@@ -3,9 +3,11 @@ from flask import Flask, \
         request,  \
         redirect, \
         url_for, \
-        jsonify
+        jsonify, \
+        abort
         
 from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://saidulislam:T0pSecret@localhost:5432/simple_todoapp'
@@ -23,19 +25,31 @@ db.create_all()
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
-    # description = request.form.get('description', '') # don't use this with ajax call
-    description = request.get_json()['description'] # use it for ajax call
-    todo = Todo(description=description)
-    db.session.add(todo)
-    db.session.commit()
-    #return redirect(url_for('index')) # redirects to the index route without ajax
-    return jsonify({
-        'description' : todo.description
-    })
+    error = False
+    body = {}
+
+    try:
+        # description = request.form.get('description', '') # don't use this with ajax call
+        description = request.get_json()['description'] # use it for ajax call
+        todo = Todo(description=description)
+        db.session.add(todo)
+        db.session.commit()
+        body['description'] = todo.description
+        #return redirect(url_for('index')) # redirects to the index route without ajax
+    except:
+        error = True
+        db.session.rollback()
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if error:
+        abort(400)
+    else:
+        return jsonify(body)
 
 @app.route('/')
 def index():
     return render_template('index.html', data=Todo.query.all())
 
 if __name__ == '__main__':
-  app.run()
+    app.run()
