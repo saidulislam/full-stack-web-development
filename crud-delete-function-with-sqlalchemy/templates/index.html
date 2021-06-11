@@ -15,16 +15,13 @@
                 clear: both;
               }
               li button {
-                margin: 0 0 0 20;
-                content: 'x';
+                -webkit-appearance: none;
+                border: none;
+                outline: none;
                 color: red;
-                font-weight: 300;
-                font-family: Arial, sans-serif;
-                border: 1px solid black;
-              }
-              .lists-wrapper, .todos-wrapper {
-                display: inline-block;
-                vertical-align: top;
+                float: right;
+                cursor: pointer;
+                font-size: 20px;
               }
         </style>
     </head>
@@ -44,6 +41,21 @@
             {% endfor %}
         </ul>
         <script>
+            const deleteBtns = document.querySelectorAll('.delete-button');
+            for (let i = 0; i < deleteBtns.length; i++) {
+                const btn = deleteBtns[i];
+                btn.onclick = function(e) {
+                const todoId = e.target.dataset['id'];
+                fetch('/todos/' + todoId, {
+                    method: 'DELETE'
+                })
+                .then(function() {
+                    const item = e.target.parentElement;
+                    item.remove();
+                })
+                }
+            }
+
             const checkboxes = document.querySelectorAll('.check-completed');
             for (let i = 0; i < checkboxes.length; i++) {
                 const checkbox = checkboxes[i];
@@ -96,16 +108,6 @@
             })
           }
 
-            const deleteBtns = document.querySelectorAll('.delete-button');
-            for (let i = 0; i < deleteBtns.length; i++) {
-                const btn = deleteBtns[i];
-                btn.onclick = function(e) {
-                const todoId = e.target.dataset['id'];
-                fetch('/todos/' + todoId, {
-                    method: 'DELETE'
-                });
-                }
-            }
         </script>
       </body>
 </html>

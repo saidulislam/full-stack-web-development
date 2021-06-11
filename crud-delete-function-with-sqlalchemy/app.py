@@ -11,6 +11,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://saidulislam:T0pSecret@localhost:5432/simple_todoapp'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
@@ -36,7 +37,7 @@ def delete_todo(todo_id):
     finally:
         db.session.close()
     return jsonify({ 'success': True })
-    
+
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
